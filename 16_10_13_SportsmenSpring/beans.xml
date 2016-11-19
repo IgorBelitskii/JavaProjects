@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd ">
+	<bean id="sportsman" class="tel_ran.sportsmen.impl.Footballer">
+		<constructor-arg name="team" value="Real">
+		</constructor-arg>
+	</bean>
+	<bean id="runner" class="tel_ran.sportsmen.impl.Runner">
+		<property name="speed">
+			<value>40</value>
+		</property>
+	</bean>
+	<bean id="footballer1" class="tel_ran.sportsmen.impl.Footballer">
+		<constructor-arg name="team" value="Real">
+		</constructor-arg>
+	</bean>
+	<bean id="footballer2" class="tel_ran.sportsmen.impl.Footballer">
+		<constructor-arg name="team" value="Real">
+		</constructor-arg>
+	</bean>
+	<bean id="footballer3" class="tel_ran.sportsmen.impl.Footballer">
+		<constructor-arg name="team" value="Barsa">
+		</constructor-arg>
+	</bean>
+	<bean id="runner1" class="tel_ran.sportsmen.impl.Runner">
+		<property name="speed">
+			<value>40</value>
+		</property>
+	</bean>
+	<bean id="runner2" class="tel_ran.sportsmen.impl.Runner">
+		<property name="speed">
+			<value>30</value>
+		</property>
+	</bean>
+	<bean id="runner3" class="tel_ran.sportsmen.impl.Runner">
+		<property name="speed">
+			<value>40</value>
+		</property>
+	</bean>
+	<bean id="team" class="tel_ran.sportsmen.impl.OlympicTeam">
+		<constructor-arg>
+			<array>
+				<ref bean="footballer1"/>
+				<ref bean="footballer2"/>
+				<ref bean="footballer3"/>
+				<ref bean="runner1"/>
+				<ref bean="runner2"/>
+				<ref bean="runner3"/>
+			</array>
+		</constructor-arg>
+	</bean>
+
+</beans>

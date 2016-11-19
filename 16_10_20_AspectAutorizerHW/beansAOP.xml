@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mongo="http://www.springframework.org/schema/data/mongo"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+   http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+   http://www.springframework.org/schema/aop
+   http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+   http://www.springframework.org/schema/data/mongo
+   http://www.springframework.org/schema/data/mongo/spring-mongo-1.0.xsd">
+   <!-- Configure the Mongo Server -->
+	<bean id="uri" class="com.mongodb.MongoClientURI">
+		<constructor-arg name="uri"
+			value="mongodb://igsoft:igsoft@ds021711.mlab.com:21711/users" />
+	</bean>
+	<bean id="mongo" class="com.mongodb.MongoClient">
+		<constructor-arg name="uri" ref="uri" />
+	</bean>
+	<bean id="mongoTemplate" class="org.springframework.data.mongodb.core.MongoTemplate">
+		<constructor-arg ref="mongo" />
+		<constructor-arg name="databaseName" value="users" />
+	</bean>
+	<bean id="accountMongoDB" class="tel_ran.account.dao.AccountMongoDB">
+	</bean>
+
+	<mongo:repositories base-package="tel_ran.users.repo"></mongo:repositories>
+	<context:annotation-config/>
+	
+	<bean id="authentificator" class="tel_ran.security.Authenticater">
+		<constructor-arg name="accountMongoDB">
+		<ref bean="accountMongoDB" />
+		</constructor-arg>
+	</bean>
+
+	<bean id="authorizer" class="tel_ran.security.aop.Authorizer">
+		<constructor-arg name="authenticater">
+			<ref bean="authentificator" />
+		</constructor-arg>
+		<constructor-arg name="accounter">
+			<ref bean="accounter" />
+		</constructor-arg>
+	</bean>
+	<bean id="applClass" class="tel_ran.application.AplicationClass" scope="prototype">
+		<property name="authenticater">
+			<ref bean="authentificator" />
+		</property>
+	</bean>
+
+	<aop:aspectj-autoproxy></aop:aspectj-autoproxy> <!-- выбор ascpectj как AOP для аппликации -->
+	<aop:config>
+		<aop:aspect ref="authorizer"> <!--reference to aspect - тут можно задать бины к перехвату/ Элементы аспекта 
+				задаются неперехватываемые методы -->
+			<aop:pointcut
+				expression="execution( * tel_ran.application.AplicationClass.*(..))
+			 and not execution( * tel_ran.application.AplicationClass.log*(..))"
+				id="allFunctions2" /><!-- а можно добавить and not execution -->
+			<aop:around method="authorize" pointcut-ref="allFunctions2" />
+		</aop:aspect> <!-- OR можно задать несколькими строчками aop: , AND только внутри expression -->
+	</aop:config>
+
+	<bean id="accounter" class="tel_ran.security.Accounter" init-method="restoreMap" destroy-method="saveUpdatedMap">
+		<constructor-arg>
+			<value>log.txt</value>
+		</constructor-arg>
+	</bean>
+</beans>
+<!-- -->

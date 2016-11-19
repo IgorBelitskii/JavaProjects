@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+   http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+   http://www.springframework.org/schema/aop
+   http://www.springframework.org/schema/aop/spring-aop-4.0.xsd">
+	<bean id="validationAspect" class="tel_ran.aop.validation.VulgarWordsValidation">
+	  <constructor-arg name="vulgars">
+        <array>
+        	<value>aaaa</value>
+            <value>bbbb</value>
+            <value>eeee</value>
+        </array>
+	  </constructor-arg>
+	  <constructor-arg name="exception">
+	  	<value>true</value>
+	  </constructor-arg>
+	  <constructor-arg name="change">
+	  	<value>***</value>
+	  </constructor-arg>
+	</bean>
+	<bean id="timeAspect" class="tel_ran.aop.benchmarking.PerfomanceTest">
+	</bean>
+
+	<aop:aspectj-autoproxy></aop:aspectj-autoproxy> <!-- выбор ascpectj как AOP для аппликации -->
+	<aop:config>
+	<aop:aspect ref="timeAspect"> <!--reference to aspect - тут можно задать бины к перехвату/ Элементы аспекта задаются неперехватываемые методы-->
+		<aop:pointcut expression="execution(public * rep*(..))" id="allFunctions2" /><!-- а можно добавить and not execution --> 
+		<aop:around method="watchPerfomance" pointcut-ref="allFunctions2" />
+		</aop:aspect> <!-- 	OR можно задать несколькими строчками aop: , AND только внутри expression -->
+		<aop:aspect ref="validationAspect"> <!--reference to aspect - тут можно задать бины к перехвату/ Элементы аспекта задаются неперехватываемые методы-->
+		<aop:pointcut expression="execution(public * *(..)) and not execution(public * rep*(..))" id="allFunctions" /><!-- а можно добавить and not execution --> 
+		<aop:around method="validate" pointcut-ref="allFunctions" />
+		</aop:aspect> <!-- 	OR можно задать несколькими строчками aop: , AND только внутри expression -->
+		
+	</aop:config>
+	<bean id = "chat" class="tel_ran.chat.ChatRoom"/>
+	
+</beans>
+<!--   -->

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+   http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+   http://www.springframework.org/schema/aop
+   http://www.springframework.org/schema/aop/spring-aop-4.0.xsd">
+	<bean id="authentificator" class="tel_ran.security.Authenticater">
+		<constructor-arg type="java.util.Map" name="rulesPasswords">
+			<map key-type="java.lang.String" value-type="java.lang.String">
+				<entry key="Admin" value="admin5777" />
+				<entry key="User" value="user5777" />
+				<entry key="UserNew" value="user5777" />
+			</map>
+		</constructor-arg>
+	</bean>
+
+	<bean id="authorizer" class="tel_ran.security.aop.Authorizer">
+		<constructor-arg name="rulesMethods">
+			<map key-type="java.lang.String" value-type="java.util.Set">
+				<entry key="Admin">
+					<set value-type="java.lang.String">
+						<value>set1</value>
+						<value>set2</value>
+					</set>
+				</entry>
+				<entry key="User">
+					<set value-type="java.lang.String">
+						<value>set1</value>
+					</set>
+				</entry>
+			</map>
+		</constructor-arg>
+		<constructor-arg name="authenticater">
+			<ref bean="authentificator" />
+		</constructor-arg>
+		<constructor-arg name="accounter">
+			<ref bean="accounter" />
+		</constructor-arg>
+	</bean>
+	<bean id="applClass" class="tel_ran.application.AplicationClass" scope="prototype">
+		<property name="authenticater">
+			<ref bean="authentificator" />
+		</property>
+	</bean>
+
+	<aop:aspectj-autoproxy></aop:aspectj-autoproxy> <!-- выбор ascpectj как AOP для аппликации -->
+	<aop:config>
+		<aop:aspect ref="authorizer"> <!--reference to aspect - тут можно задать бины к перехвату/ Элементы аспекта 
+				задаются неперехватываемые методы -->
+			<aop:pointcut
+				expression="execution( * tel_ran.application.AplicationClass.*(..))
+			 and not execution( * tel_ran.application.AplicationClass.log*(..))"
+				id="allFunctions2" /><!-- а можно добавить and not execution -->
+			<aop:around method="authorize" pointcut-ref="allFunctions2" />
+		</aop:aspect> <!-- OR можно задать несколькими строчками aop: , AND только внутри expression -->
+	</aop:config>
+
+	<bean id="accounter" class="tel_ran.security.Accounter" init-method="restoreMap" destroy-method="saveUpdatedMap">
+		<constructor-arg>
+			<value>log.txt</value>
+		</constructor-arg>
+	</bean>
+</beans>
+<!-- -->
